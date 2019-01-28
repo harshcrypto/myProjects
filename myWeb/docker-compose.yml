@@ -1,0 +1,14 @@
+version: '2.2'
+services:
+  myweb:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: myweb-1.0
+    ports:
+    - "127.0.0.1:8080:8080"
+    networks:
+    - network1
+
+networks:
+  network1:
