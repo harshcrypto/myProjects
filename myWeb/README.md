@@ -5,4 +5,6 @@ mvn clean package
 Build docker image
 ===================
 docker-compose build
-docker-compose run
+docker-compose up
+
+curl http://localhost:8080/
