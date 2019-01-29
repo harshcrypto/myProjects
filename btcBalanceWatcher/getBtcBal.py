@@ -49,10 +49,10 @@ with open('file-list.txt') as csv_file:
 print('Processed', file_count,' files.')
 print("Total Balance:",totalBalance/100000000)
 if hackedAddress=="":
-    notification += "SAFE: "
+    notification += "SAFE: \n"
     notification += str(totalBalance/100000000)
 else:
-    notification += "HACKED: "
+    notification += "HACKED: \n"
     notification += hackedAddress
 spoofAddress = open('spoofAddress.txt')
 
