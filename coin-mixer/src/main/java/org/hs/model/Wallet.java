@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class Wallet {
     // Fresh Deposit address
-    private LinkedList<String> freshDepositAddressList = new LinkedList<String>();
+    private LinkedList<String> freshDepositAddressList = new LinkedList<>();
     private ConcurrentHashMap<String, AddressInfo> checkfillDepositAddressList = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, AddressInfo> depositCompleteAddressList = new ConcurrentHashMap<>();
     //Mixer Addresses: for internal use only
@@ -63,14 +63,14 @@ public class Wallet {
         checkfillDepositAddressList.remove(clientAddress);
     }
 
-    private int getRandom(int maximum, int minimum) {
+    public int getRandom(int maximum, int minimum) {
         return ((int) (Math.random()*(maximum - minimum))) + minimum;
     }
 
     //Mixer address function
 
     public  LinkedList<String> getFreshMixerAddress(int totalAddress) {
-        LinkedList<String> nFreshMixerAddresses = new LinkedList<String>();
+        LinkedList<String> nFreshMixerAddresses = new LinkedList<>();
         for (int i = 0; i < totalAddress; i++) {
             nFreshMixerAddresses.push(freshMixerAddressList.pop());
         }
@@ -87,8 +87,7 @@ public class Wallet {
 
     // gateway address
     public  String getGatewayAddress() {
-        String gatewayAddress = freshGatewayAddressList.pop();
-        return gatewayAddress;
+        return freshGatewayAddressList.pop();
     }
 
     public static void main(String[] args ) {
