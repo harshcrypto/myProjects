@@ -20,42 +20,66 @@ public class Mixer {
     private MyRestClient myRestClient;
     @Value("${myapp.house-address}")
     private String houseAddress;
+    @Value("${myapp.mixer.speed}")
+    private int mixerSpeed;
     private Logger logger = Logger.getLogger(Mixer.class);
     public void mixCoins() {
-        // 1. Take coins from deposit complete and move to mixer address
+        // M1. Take coins from deposit complete and move to mixer address
         ConcurrentHashMap<String, AddressInfo> depositCompleteAddressList= wallet.getDepositCompleteAddressList();
         logger.info("Total address to mix:"+depositCompleteAddressList.size());
         for (String address : depositCompleteAddressList.keySet()) {
             AddressInfo addressInfo = depositCompleteAddressList.get(address);
             moveToMixerAddress(address,addressInfo);
+            stageTwoMixer();
         }
-        // 2. Take coins from mixer address and move to client's deposit address
     }
 
+    /**
+     * Move the coin based on a mixer speed
+     * @param address
+     * @param addressInfo
+     */
     private void moveToMixerAddress(String address, AddressInfo addressInfo) {
         double balance = addressInfo.getBalance();
-        int evenRandomNum = wallet.getRandom(5,1)*2;
+        int evenRandomNum = wallet.getRandom(5,1)*2*mixerSpeed;
+        logger.info("Random Number for this run: "+evenRandomNum);
+        //M2. Get fresh mixer address and fill move coins evenly
         LinkedList<String> freshMixerAddress = wallet.getFreshMixerAddress(evenRandomNum);
         for (String mixerAddress:freshMixerAddress) {
             myRestClient.sendCoin(houseAddress,mixerAddress,balance/evenRandomNum);
             wallet.addFilledMixerAddress(mixerAddress);
         }
     }
+    private void stageTwoMixer() {
+        //for future: M3. Mix the coins again, to make the algo more complex
 
+    }
+
+    /**
+     * Initiate the withdrawal to the clients addresses
+     */
     public void doClientWithdrawal()
     {
         ConcurrentHashMap<String, AddressInfo> depositCompleteAddressList= wallet.getDepositCompleteAddressList();
         logger.info("Withdrawal for clients:"+depositCompleteAddressList.size());
+        // Iterate over the clients deposit address
         for (String address : depositCompleteAddressList.keySet()) {
             AddressInfo addressInfo = depositCompleteAddressList.get(address);
             String[] withdrawalAddresses = parseAddresses(addressInfo.getClientAddresses());
             ArrayList mixerAddresses = getMixerAddressForWithdrawl(addressInfo.getBalance());
+            //Withdraw from xier address to client's address
             withdraw(withdrawalAddresses,mixerAddresses,addressInfo.getBalance());
             wallet.getWithdrawalCompleteAddress().push(address);
             wallet.getDepositCompleteAddressList().remove(address);
         }
     }
 
+    /**
+     * Moves coin from mixer addresses to client's address
+     * @param withdrawalAddresses
+     * @param mixerAddresses
+     * @param amount
+     */
     private void withdraw( String[] withdrawalAddresses,ArrayList<String> mixerAddresses,double amount) {
         double amountToTransfer= amount;
         String gatewayAddress=wallet.getGatewayAddress();
@@ -84,6 +108,11 @@ public class Mixer {
         }
     }
 
+    /**
+     * Get the eligible mixer address for withdrawal
+     * @param amount
+     * @return
+     */
     private ArrayList<String> getMixerAddressForWithdrawl( double amount) {
         double transferAmount = amount;
         ArrayList withdrawMixerAddresses = new ArrayList<String>();

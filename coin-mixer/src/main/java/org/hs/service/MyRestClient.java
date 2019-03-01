@@ -23,6 +23,11 @@ public class MyRestClient {
     @Value("${myapp.house-address}")
     private String houseAddress;
 
+    /**
+     * get the address info of an address
+     * @param address
+     * @return
+     */
     public AddressInfo getAddressInfo(String address) {
         String url = ROOT_URI + "/addresses/"+address;
         logger.info("url: "+url);
@@ -31,31 +36,26 @@ public class MyRestClient {
         return response.getBody();
     }
 
+    /**
+     * Send coin to house address. Just a convenience function
+     * @param address
+     * @param amount
+     * @return
+     */
     public String sendCoinToHouse(String address, Double amount) {
-        String url = ROOT_URI + "/transactions";
-        logger.info("url: "+url);
+        return sendCoin( address, houseAddress, amount);
 
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
-        map.add("fromAddress", address);
-        map.add("toAddress", houseAddress);
-        map.add("amount", amount.toString());
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-
-        ResponseEntity<String> response = restTemplate.postForEntity( url, request , String.class );
-
-        logger.info("Balance: "+response.getBody());
-        return response.getBody();
     }
 
+    /**
+     * Move coin from an address to another
+     * @param fromAddress
+     * @param toAddress
+     * @param amount
+     * @return
+     */
     public String sendCoin(String fromAddress,String toAddress, Double amount) {
         String url = ROOT_URI + "/transactions";
-
-
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

@@ -21,7 +21,7 @@ public class SchedulerService {
     private Logger logger = Logger.getLogger(SchedulerService.class);
     @Scheduled(cron = "0 * * * * *")
     public void moveCoinsToHouse() {
-        //1. poll deposit address
+        //S1. poll deposit address and check if they it has non-zero balance
         ConcurrentHashMap<String, AddressInfo> depositAddressList = wallet.getCheckfillDepositAddressList();
         logger.info("Total address to poll:"+depositAddressList.size());
         for (String address : depositAddressList.keySet()) {
@@ -29,12 +29,15 @@ public class SchedulerService {
             AddressInfo addressInfo= myRestClient.getAddressInfo(address);
             if(addressInfo.getBalance()>0) {
                 logger.info("Found non-zero balance for Address: "+address+" moving to house address.");
-                //2. Move coins to house address
+                //S2. Move coins to house address
                 myRestClient.sendCoinToHouse(address,addressInfo.getBalance());
+                //S3. Mark the deposit address as deposit complete
                 wallet.completeDeposit(address,addressInfo.getBalance());
             }
         }
+        //S3. Mix the coins
         mixer.mixCoins();
+        //S4. Do the coin withdrawal to client's address
         mixer.doClientWithdrawal();
     }
 
