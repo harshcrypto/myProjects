@@ -43,7 +43,7 @@ public class MyRestClient {
      * @return
      */
     public String sendCoinToHouse(String address, Double amount) {
-        return sendCoin( address, houseAddress, amount);
+        return sendCoin( address, houseAddress, amount,0D);
 
     }
 
@@ -54,19 +54,19 @@ public class MyRestClient {
      * @param amount
      * @return
      */
-    public String sendCoin(String fromAddress,String toAddress, Double amount) {
+    public String sendCoin(String fromAddress,String toAddress, Double amount,Double fee) {
         String url = ROOT_URI + "/transactions";
-
+        Double amountAfterFee=amount-fee;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
         map.add("fromAddress", fromAddress);
         map.add("toAddress", toAddress);
-        map.add("amount", amount.toString());
+        map.add("amount", amountAfterFee.toString());
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
-        logger.info("url: "+url+" fromAddress: "+fromAddress+" toAddress: "+toAddress+" amount: "+amount);
+        logger.info("url: "+url+" fromAddress: "+fromAddress+" toAddress: "+toAddress+" amount: "+amountAfterFee);
         ResponseEntity<String> response = restTemplate.postForEntity( url, request , String.class );
 
         logger.info("Balance: "+response.getBody());

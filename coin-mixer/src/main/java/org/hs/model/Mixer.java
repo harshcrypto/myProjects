@@ -22,6 +22,8 @@ public class Mixer {
     private String houseAddress;
     @Value("${myapp.mixer.speed}")
     private int mixerSpeed;
+
+    private double fee=0.0000001;
     private Logger logger = Logger.getLogger(Mixer.class);
     public void mixCoins() {
         // M1. Take coins from deposit complete and move to mixer address
@@ -46,7 +48,7 @@ public class Mixer {
         //M2. Get fresh mixer address and fill move coins evenly
         LinkedList<String> freshMixerAddress = wallet.getFreshMixerAddress(evenRandomNum);
         for (String mixerAddress:freshMixerAddress) {
-            myRestClient.sendCoin(houseAddress,mixerAddress,balance/evenRandomNum);
+            myRestClient.sendCoin(houseAddress,mixerAddress,balance/evenRandomNum,0.00000000000000001D);
             wallet.addFilledMixerAddress(mixerAddress);
         }
     }
@@ -90,10 +92,10 @@ public class Mixer {
             if(mixerAddressInfo.getBalance()>0)
             {
                 if(amountToTransfer>mixerAddressInfo.getBalance()) {
-                    myRestClient.sendCoin(mixerAddress,gatewayAddress,mixerAddressInfo.getBalance());
+                    myRestClient.sendCoin(mixerAddress,gatewayAddress,mixerAddressInfo.getBalance(),0.0000000000000001D);
                     amountToTransfer -= mixerAddressInfo.getBalance();
                 } else {
-                    myRestClient.sendCoin(mixerAddress,gatewayAddress,amountToTransfer);
+                    myRestClient.sendCoin(mixerAddress,gatewayAddress,amountToTransfer,0D);
                     amountToTransfer-=amountToTransfer;
                     wallet.addFilledMixerAddress(mixerAddress);
                 }
@@ -104,7 +106,7 @@ public class Mixer {
         logger.info("Gateway balance:"+gatewayAddressInfo.getBalance());
         //Move to client's withdrawal address
         for (int i = 0; i < withdrawalAddresses.length; i++) {
-            myRestClient.sendCoin(gatewayAddress,withdrawalAddresses[i],amount/withdrawalAddresses.length);
+            myRestClient.sendCoin(gatewayAddress,withdrawalAddresses[i],amount/withdrawalAddresses.length,fee);
         }
     }
 

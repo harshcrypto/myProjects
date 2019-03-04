@@ -24,15 +24,15 @@ public class Wallet {
     public Wallet() {
         //Static address generation. In v2.0 replenish these address list automatically
         for (int i = 0; i < 1000; i++) {
-            freshDepositAddressList.push("DepositAddress"+i);
+            freshDepositAddressList.push("4DepositAddress"+i);
         }
 
         for (int i = 0; i < 1000; i++) {
-            freshMixerAddressList.push("MixerAddress"+i);
+            freshMixerAddressList.push("4MixerAddress"+i);
         }
 
         for (int i = 0; i < 1000; i++) {
-            freshGatewayAddressList.push("GatewayAddress"+i);
+            freshGatewayAddressList.push("4GatewayAddress"+i);
         }
     }
 
@@ -64,7 +64,12 @@ public class Wallet {
     }
 
     public int getRandom(int maximum, int minimum) {
-        return ((int) (Math.random()*(maximum - minimum))) + minimum;
+
+        int result;
+         do {
+             result = ((int) (Math.random()*(maximum - minimum))) + minimum;
+         } while (result%3==0);
+        return result;
     }
 
     //Mixer address function
